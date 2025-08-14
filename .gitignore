@@ -1,0 +1,128 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# IDE
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*~
+.directory
+.fuse_hidden*
+.nfs*
+
+# Logs and temporary files
+*.log
+logs/
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.backup
+*.orig
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration files with sensitive data
+.env
+.secrets
+config.ini
+secrets.json
+
+# uv (Python package manager)
+.uv/
+
+# Docker
+.dockerignore
+
+# Generated files (should not be committed)
+src/models.py
+
+# OpenAPI spec downloads (temporary)
+QuantConnect-Platform-*.yaml
+
+# QuantConnect specific
+.quantconnect/
+quantconnect.json
+
+# Test artifacts
+test_*.py
+*_test.py
+test_results/
+
+# Local development
+.local/
+local/
+tmp/
+temp/
+
+# MCP specific
+mcp-server.log
+*.mcp
