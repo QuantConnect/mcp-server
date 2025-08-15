@@ -1,9 +1,11 @@
 from api_connection import post
-from models import LeanVersionsResponse 
+from models import LeanVersionsResponse
+from tool_args import tool_with_args
 
 def register_lean_version_tools(mcp):
     # Read
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
         annotations={'title': 'Read LEAN versions', 'readOnlyHint': True}
     )
     async def read_lean_versions() -> LeanVersionsResponse:

@@ -1,9 +1,11 @@
 from api_connection import post
 from models import AccountResponse
+from tool_args import tool_with_args
 
 def register_account_tools(mcp):
     # Read
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
         annotations={
             'title': 'Read account',
             'readOnlyHint': True,

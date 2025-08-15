@@ -4,10 +4,13 @@ from models import (
     UpdateProjectNodesRequest,
     ProjectNodesResponse
 )
+from tool_args import tool_with_args
 
 def register_project_node_tools(mcp):
     # Read
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        ReadProjectNodesRequest,
         annotations={'title': 'Read project nodes', 'readOnlyHint': True}
     )
     async def read_project_nodes(
@@ -16,7 +19,9 @@ def register_project_node_tools(mcp):
         return await post('/projects/nodes/read', model)
 
     # Update
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        UpdateProjectNodesRequest,
         annotations={
             'title': 'Update project nodes',
             'destructiveHint': False,

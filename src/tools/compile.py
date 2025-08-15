@@ -5,10 +5,13 @@ from models import (
     CreateCompileResponse,
     ReadCompileResponse
 )
+from tool_args import tool_with_args
 
 def register_compile_tools(mcp):
     # Create
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        CreateCompileRequest,
         annotations={'title': 'Create compile', 'destructiveHint': False}
     )
     async def create_compile(
@@ -17,7 +20,11 @@ def register_compile_tools(mcp):
         return await post('/compile/create', model)
 
     # Read
-    @mcp.tool(annotations={'title': 'Read compile', 'readOnlyHint': True})
+    @tool_with_args(
+        mcp,
+        ReadCompileRequest,
+        annotations={'title': 'Read compile', 'readOnlyHint': True}
+    )
     async def read_compile(model: ReadCompileRequest) -> ReadCompileResponse:
         """Read a compile packet job result."""
         return await post('/compile/read', model)

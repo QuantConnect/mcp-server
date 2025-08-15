@@ -11,10 +11,13 @@ from models import (
     ListObjectStoreResponse,
     RestResponse
 )
+from tool_args import tool_with_args
 
 def register_object_store_tools(mcp):
     # Create
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        ObjectStoreBinaryFile,
         annotations={
             'title': 'Upload Object Store file', 'idempotentHint': True
         }
@@ -39,7 +42,9 @@ def register_object_store_tools(mcp):
             return response.json()
 
     # Read file metadata
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        GetObjectStorePropertiesRequest,
         annotations={
             'title': 'Read Object Store file properties', 'readOnlyHint': True
         }
@@ -55,7 +60,9 @@ def register_object_store_tools(mcp):
         return await post('/object/properties', model)
 
     # Read file job Id
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        GetObjectStoreJobIdRequest,
         annotations={
             'title': 'Read Object Store file job Id', 'destructiveHint': False
         }
@@ -68,7 +75,9 @@ def register_object_store_tools(mcp):
         return await post('/object/get', model)
 
     # Read file download URL
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        GetObjectStoreURLRequest,
         annotations={
             'title': 'Read Object Store file download URL',
             'readOnlyHint': True
@@ -80,7 +89,9 @@ def register_object_store_tools(mcp):
         return await post('/object/get', model)
 
     # Read all files
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        ListObjectStoreRequest,
         annotations={'title': 'List Object Store files', 'readOnlyHint': True}
     )
     async def list_object_store_files(
@@ -91,7 +102,9 @@ def register_object_store_tools(mcp):
         return await post('/object/list', model)
 
     # Delete
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        DeleteObjectStoreRequest,
         annotations={
             'title': 'Delete Object Store file',
             'idempotentHint': True
