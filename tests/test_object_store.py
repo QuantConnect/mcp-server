@@ -89,7 +89,7 @@ class ObjectStore:
     @staticmethod
     async def wait_for_job_to_complete(organization_id, job_id):
         attempts = 0
-        while attempts < 18:
+        while attempts < 36:
             attempts += 1
             output_model = await ObjectStore.read_download_url(
                 organization_id, job_id

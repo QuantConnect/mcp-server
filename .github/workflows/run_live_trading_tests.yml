@@ -1,4 +1,4 @@
-name: Run tests
+name: Run live trading tests
 
 on:
   workflow_dispatch:
@@ -6,27 +6,7 @@ on:
   #  branches: ['*']
     
 jobs:
-  run_matrix:
-    strategy:
-      fail-fast: false
-      matrix:
-        script: 
-          - account
-          - ai
-          - backtest_charts
-          - backtest_insights
-          - backtest_orders
-          - backtests
-          - compile
-          - files
-          - lean_versions
-          - mcp_server_version
-          - object_store
-          - optimizations
-          - project
-          - project_collaboration
-          - project_nodes
-
+  build:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
@@ -34,14 +14,14 @@ jobs:
       - name: Install dependencies
         run: |-
           python -m pip install --upgrade pip 
-          pip install mcp[cli]==1.10.1, pytest-asyncio==1.0.0, requests
+          pip install mcp[cli]==1.10.1, pytest-asyncio==1.0.0
 
       - name: Free space
         run: df -h && rm -rf /opt/hostedtoolcache* && df -h
 
-      - name: Run test_${{ matrix.script }}.py
+      - name: Run tests
         run: |-
-          cd tests; pytest test_${{ matrix.script }}.py
+          cd tests; pytest test_live.py test_live_charts.py test_live_commands.py test_live_insights.py test_live_logs.py test_live_orders.py
         env:
           QUANTCONNECT_USER_ID: ${{ secrets.QUANTCONNECT_USER_ID }}
           QUANTCONNECT_API_TOKEN: ${{ secrets.QUANTCONNECT_API_TOKEN }}

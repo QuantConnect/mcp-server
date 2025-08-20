@@ -8,6 +8,7 @@ dependencies = [
     "python-dotenv>=0.23.0",
     "httpx>=0.28.1",
     "mcp[cli]>=1.9.3",
+    "requests"
 ]
 
 [tool.pytest.ini_options]

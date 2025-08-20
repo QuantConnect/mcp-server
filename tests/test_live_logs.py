@@ -46,7 +46,7 @@ TEST_CASES = [
     #('C#', 'LiveLogs.cs')
 ]
 # Test suite:
-class TestLiveCharts:
+class TestLiveLogs:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize('language, algo', TEST_CASES)
@@ -58,6 +58,11 @@ class TestLiveCharts:
             project_id, compile_id, await Live.get_node_id(project_id)
         )
         await Live.wait_for_algorithm_to_start(project_id)
+        # Give the algorithm time to print the logs and then stop it so
+        # it flushes all the logs to the log file. Without stopping it, 
+        # we'll have to wait ~10 minutes for the log file to populate.
+        sleep(15)
+        await Live.stop(project_id)
         # Try to read the logs.
         response = await LiveLogs.wait_for_logs_to_load(
             project_id, live.deployId
@@ -65,6 +70,5 @@ class TestLiveCharts:
         assert response.deploymentOffset == 0
         assert response.length >= 10        
         assert len(response.logs) >= 10
-        # Stop the algorithm and delete the project to clean up.
-        await Live.stop(project_id)
+        # Delete the project to clean up.
         await Project.delete(project_id)

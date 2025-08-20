@@ -1,10 +1,14 @@
 name: Build and Push to Docker Hub
 
 on:
+  # Run when we click the Run Job button on GitHub.
   workflow_dispatch:
+  # Run when there is a new Release (has a tag).
+  push:
+    tags: ['**']    # Match any tag
 
 jobs:
-  build-and-push:
+  release:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,6 +30,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Update the version/tag.
+      - name: Update version
+        run: sed -i 's/__version__ = "0.0.0-dev"/__version__ = "'"${GITHUB_REF##*/}"'"/g' src/__init__.py
+
       # Build and push the Docker image
       - name: Build and push multi-platform Docker image
         uses: docker/build-push-action@v6
@@ -35,5 +43,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            quantconnect/mcp-server:${{ github.sha }}
+            quantconnect/mcp-server:${{ github.ref_name }}
             quantconnect/mcp-server:latest

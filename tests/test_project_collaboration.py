@@ -17,7 +17,8 @@ from models import (
     CreateCollaboratorResponse,
     ReadCollaboratorsResponse,
     UpdateCollaboratorResponse,
-    DeleteCollaboratorResponse
+    DeleteCollaboratorResponse,
+    RestResponse
 )
 
 COLLABORATOR_ID = os.getenv('QUANTCONNECT_COLLABORATOR_ID')
@@ -71,6 +72,14 @@ class ProjectCollaboration:
             DeleteCollaboratorResponse
         )
         return output_model.collaborators
+
+    @staticmethod
+    async def lock(project_id):
+        return await validate_models(
+            mcp, 'lock_project_with_collaborators', 
+            {'projectId': project_id, 'codeSourceId': ''}, 
+            RestResponse
+        )
 
 
 # Test suite:

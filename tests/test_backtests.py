@@ -239,6 +239,21 @@ class TestBacktest:
         # exist.
         await ensure_request_fails(mcp, tool_name, {'projectId': -1})
 
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        'language, algo', 
+        [
+            ('Py', 'runtime_error.py'),
+            ('C#', 'RuntimeError.cs')
+        ]
+    )
+    async def test_list_backtests_with_runtime_error(self, language, algo):
+        # Run the backtest.
+        project_id, _ = await Backtest.run_algorithm(language, algo)
+        # Try to list the backtest of the project.
+        await Backtest.list(project_id)
+        # Delete the project to clean up.
+        await Project.delete(project_id)
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize('language', ['Py', 'C#'])

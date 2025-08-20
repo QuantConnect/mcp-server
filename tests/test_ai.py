@@ -72,7 +72,7 @@ class TestAI:
     ])
     async def test_check_initialization_errors(self, language, algo, name):
         # Get the file content.
-        with open('tests/algorithms/' + algo, 'r') as file:
+        with open('algorithms/' + algo, 'r') as file:
             content = file.read()
         # Check for initialization errors.
         await AI.check_initialization_errors(
@@ -103,7 +103,7 @@ class TestAI:
     async def test_update_code_to_pep8(self):
         name = 'pep8_violations.py'
         # Get the file content.
-        with open('tests/algorithms/' + name, 'r') as file:
+        with open('algorithms/' + name, 'r') as file:
             content = file.read()
         files = [{'name': name, 'content': content}]
         response = await AI.update_code_to_pep8(files)
@@ -117,7 +117,7 @@ class TestAI:
     async def test_check_syntax(self):
         name = 'syntax_errors.py'
         # Get the file content.
-        with open('tests/algorithms/' + name, 'r') as file:
+        with open('algorithms/' + name, 'r') as file:
             content = file.read()
         files = [{'name': name, 'content': content}]
         response = await AI.check_syntax('Py', files)

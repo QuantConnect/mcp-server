@@ -40,7 +40,7 @@ class Compile:
     @staticmethod
     async def wait_for_job_to_complete(project_id, compile_id):
         attempts = 0
-        while attempts < 5:
+        while attempts < 15:
             attempts += 1
             response = await Compile.read(project_id, compile_id)
             if response.state.value != 'InQueue':

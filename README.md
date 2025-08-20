@@ -11,13 +11,10 @@ Our implementation is tested and dockerized for easy cross-platform deployment.
 To connect local MCP clients (like Claude Desktop) to the QC MCP Server, follow these steps:
 
 1. Install and open [Docker Desktop](https://docs.docker.com/desktop/).
-2. In a terminal, pull the MCP Server from Docker Hub.
-```
-docker pull quantconnect/mcp-server
-```
-3. Install and open [Claude Desktop](https://claude.ai/download).
-4. In Claude Desktop, click **File > Settings > Developer > Edit Config**.
-5. Edit the `claude_desktop_config.json` file to include the following `quantconnect` configuration:
+2. Install and open [Claude Desktop](https://claude.ai/download).
+3. In Claude Desktop, click **File > Settings > Developer > Edit Config**.
+4. Edit the `claude_desktop_config.json` file to include the following `quantconnect` configuration:
+
 ```json
 {
   "mcpServers": {
@@ -29,24 +26,39 @@ docker pull quantconnect/mcp-server
         "--rm",
         "-e", "QUANTCONNECT_USER_ID",
         "-e", "QUANTCONNECT_API_TOKEN",
+        "-e", "AGENT_NAME",
+        "--platform", "<your_platform>",
         "--name",
         "quantconnect-mcp-server",
         "quantconnect/mcp-server"
       ],
       "env": {
         "QUANTCONNECT_USER_ID": "<your_user_id>",
-        "QUANTCONNECT_API_TOKEN": "<your_api_token>"
+        "QUANTCONNECT_API_TOKEN": "<your_api_token>",
+        "AGENT_NAME": "MCP Server"
       }
     }
   }
 }
 ```
+
   To get your user Id and API token, see [Request API Token](https://www.quantconnect.com/docs/v2/cloud-platform/community/profile#09-Request-API-Token).
 
-6. Restart Claude Desktop.
+  Our MCP server is multi-platform capable. The options are `linux/amd64` for Intel/AMD chips and `linux/arm64` for ARM chips (for example, Apple's M-series chips).
+
+  If you simultaneously run multiple agents, set a unique value for the `AGENT_NAME` environment variable for each agent to keep record of the request source. 
+
+5. Restart Claude Desktop.
+
+   Claude Desktop automatically pulls our MCP server from Docker Hub and connects to it.
 
 To view all the MCP clients and the features they support, see the [Feature Support Matrix](https://modelcontextprotocol.io/clients#feature-support-matrix) in the MCP documentation.
 
+To keep the Docker image up-to-date, pull the latest MCP server from Docker Hub in the terminal.
+```
+docker pull quantconnect/mcp-server
+```
+If you have an ARM chip, add the `--platform linux/arm64` option.
 
 ## Available Tools (60)
 | Tools provided by this Server | Short Description |
@@ -342,6 +354,7 @@ Add a file to a given project.
 | `projectId` | `integer`  | Id of the project to add the file. |
 | `name` | `string`  | The name of the new file. |
 | `content` | `string` *optional* | The content of the new file. |
+| `codeSourceId` | `string` *optional* | Name of the environment that's creating the request. |
 
 *This tool modifies it's environment.*
 
@@ -360,6 +373,7 @@ Read a file from a project, or all files in the project if no file name is provi
 | -------- | ------- | ------- |
 | `projectId` | `integer`  | Id of the project that contains the file. |
 | `name` | `string` *optional* | The name of the file to read. |
+| `codeSourceId` | `string` *optional* | Name of the environment that's creating the request. |
 
 *This tool doesn't modify it's environment.*
 
@@ -375,6 +389,7 @@ Update the name of a file.
 | `projectId` | `integer`  | Id of the project that contains the file. |
 | `name` | `string`  | The current name of the file. |
 | `newName` | `string`  | The new name for the file. |
+| `codeSourceId` | `string` *optional* | Name of the environment that's creating the request. |
 
 *This tool modifies it's environment.*
 
@@ -394,6 +409,7 @@ Update the contents of a file.
 | `projectId` | `integer`  | Id of the project that contains the file. |
 | `name` | `string`  | The name of the file to update. |
 | `content` | `string`  | The new contents of the file. |
+| `codeSourceId` | `string` *optional* | Name of the environment that's creating the request. |
 
 *This tool modifies it's environment.*
 
@@ -412,6 +428,7 @@ Delete a file in a project.
 | -------- | ------- | ------- |
 | `projectId` | `integer`  | Id of the project that contains the file. |
 | `name` | `string`  | The name of the file to delete. |
+| `codeSourceId` | `string` *optional* | Name of the environment that's creating the request. |
 
 *This tool modifies it's environment.*
 
@@ -1119,6 +1136,9 @@ Search for content in QuantConnect.
 
 
 ## Debugging
+
+### Build
+ To build the Docker image from source, clone this repository and then run `docker build -t quantconnect/mcp-server .`.
 
 ### Logs
  To log to the `mcp-server-quantconnect.log` file, `import sys` and then `print("Hello world", file=sys.stderr)`.

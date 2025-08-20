@@ -1,3 +1,5 @@
+from src import __version__
+
 import httpx
 from base64 import b64encode
 from hashlib import sha256
@@ -24,7 +26,8 @@ def get_headers():
     # Create headers dictionary.
     return {
         'Authorization': f'Basic {authentication}',
-        'Timestamp': timestamp
+        'Timestamp': timestamp,
+        'User-Agent': f'QuantConnect MCP Server v{__version__}'
     }
 
 async def post(endpoint: str, model: object = None, timeout: float = 30.0):

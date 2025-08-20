@@ -36,17 +36,17 @@ class LiveCharts:
                 'end': end,
                 'count': count
             },
-            ReadChartResponse | LoadingResponse
+            ReadChartResponse
         )
 
     @staticmethod
     async def wait_for_chart_to_load(project_id, name, start, count=None):
         attempts = 0
-        while attempts < 12*3: # 3 mins
+        while attempts < 12*2: # 2 mins
             attempts += 1
             end = max(start+10, int(time()))
             response = await LiveCharts.read(project_id, name, start, end)
-            if isinstance(response, ReadChartResponse):
+            if response.errors is None:
                 return response.chart
             sleep(5)
         assert False, f"Chart didn't load in time. {type(response)}"
@@ -69,15 +69,19 @@ class TestLiveCharts:
             project_id, compile_id, await Live.get_node_id(project_id)
         )
         await Live.wait_for_algorithm_to_start(project_id)
-        # Try to read the charts.
         start = int(time())
+        # Give the algorithm time to plot the data and then stop it so
+        # it flushes all the charts to the file. Without stopping it, 
+        # we'll have to wait ~10 minutes for the chart file to populate.
+        sleep(180)
+        await Live.stop(project_id)        
+        # Try to read the charts.
         for name in LiveCharts.default_charts + ['SMA']:
             chart = await LiveCharts.wait_for_chart_to_load(
                 project_id, name, start
             )
             assert chart.name == name, chart
-        # Stop the algorithm and delete the project to clean up.
-        await Live.stop(project_id)
+        # Delete the project to clean up.
         await Project.delete(project_id)
 
     @pytest.mark.asyncio
@@ -121,5 +125,3 @@ class TestLiveCharts:
         # Stop the algorithm and delete the project to clean up.
         await Live.stop(project_id)
         await Project.delete(project_id)
-
-        

@@ -1,5 +1,8 @@
+import sys, os
 from mcp.server.fastmcp import FastMCP
 
+# Set the path to ensure we can import the src.__init__.py file.
+sys.path.append(os.getcwd())
 from tools.account import register_account_tools
 from tools.project import register_project_tools
 from tools.project_collaboration import register_project_collaboration_tools
@@ -13,9 +16,12 @@ from tools.live_commands import register_live_trading_command_tools
 from tools.object_store import register_object_store_tools
 from tools.lean_versions import register_lean_version_tools
 from tools.ai import register_ai_tools
+from tools.mcp_server_version import register_mcp_server_version_tools
+
+transport = os.getenv('MCP_TRANSPORT', 'stdio')
 
 # Initialize the FastMCP server.
-mcp = FastMCP('quantconnect')
+mcp = FastMCP('quantconnect', host="0.0.0.0")
 
 # Register all the tools.
 registration_functions = [
@@ -32,10 +38,11 @@ registration_functions = [
     register_object_store_tools,
     register_lean_version_tools,
     register_ai_tools,
+    register_mcp_server_version_tools,
 ]
 for f in registration_functions:
     f(mcp)
 
 if __name__ == "__main__":
     # Run the server.
-    mcp.run(transport='stdio')
+    mcp.run(transport=transport)
