@@ -44,6 +44,33 @@ registration_functions = [
 for f in registration_functions:
     f(mcp)
 
+# Temporary shim to normalize tool input schemas for Codex/Anthropic
+async def _list_tools_with_shim():
+    tools = await original_list_tools()
+    for tool in tools:
+        schema = tool.inputSchema or {"type": "object", "properties": {}}
+        if schema.get("properties") and list(schema["properties"].keys()) == ["args"]:
+            schema = schema["properties"]["args"]
+        schema.setdefault("type", "object")
+        schema.setdefault("additionalProperties", False)
+
+        def _fix(node):
+            if isinstance(node, dict):
+                if node.get("type") == "integer":
+                    node["type"] = "number"
+                for v in node.values():
+                    _fix(v)
+            elif isinstance(node, list):
+                for v in node:
+                    _fix(v)
+
+        _fix(schema)
+        tool.inputSchema = schema
+    return tools
+
+original_list_tools = mcp.list_tools
+mcp.list_tools = _list_tools_with_shim
+
 if __name__ == "__main__":
     # Run the server.
     mcp.run(transport=transport)

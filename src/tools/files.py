@@ -10,11 +10,14 @@ from models import (
     RestResponse,
     ProjectFilesResponse
 )
+from tool_args import tool_with_args
 
 
 def register_file_tools(mcp):
     # Create
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        CreateProjectFileRequest,
         annotations={
             'title': 'Create file',
             'destructiveHint': False,
@@ -27,7 +30,11 @@ def register_file_tools(mcp):
         return await post('/files/create', add_code_source_id(model))
 
     # Read
-    @mcp.tool(annotations={'title': 'Read file', 'readOnlyHint': True})
+    @tool_with_args(
+        mcp,
+        ReadFilesRequest,
+        annotations={'title': 'Read file', 'readOnlyHint': True}
+    )
     async def read_file(model: ReadFilesRequest) -> ProjectFilesResponse:
         """Read a file from a project, or all files in the project if 
         no file name is provided.
@@ -35,7 +42,9 @@ def register_file_tools(mcp):
         return await post('/files/read', add_code_source_id(model))
     
     # Update name
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        UpdateFileNameRequest,
         annotations={'title': 'Update file name', 'idempotentHint': True}
     )
     async def update_file_name(model: UpdateFileNameRequest) -> RestResponse:
@@ -43,7 +52,9 @@ def register_file_tools(mcp):
         return await post('/files/update', add_code_source_id(model))
 
     # Update contents
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        UpdateFileContentsRequest,
         annotations={'title': 'Update file contents', 'idempotentHint': True}
     )
     async def update_file_contents(
@@ -60,7 +71,11 @@ def register_file_tools(mcp):
         return await post('/files/patch', add_code_source_id(model))
         
     # Delete
-    @mcp.tool(annotations={'title': 'Delete file', 'idempotentHint': True})
+    @tool_with_args(
+        mcp,
+        DeleteFileRequest,
+        annotations={'title': 'Delete file', 'idempotentHint': True}
+    )
     async def delete_file(model: DeleteFileRequest) -> RestResponse:
         """Delete a file in a project."""
         return await post('/files/delete', add_code_source_id(model))
