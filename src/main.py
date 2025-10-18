@@ -11,6 +11,8 @@ from organization_workspace import OrganizationWorkspace
 from settings import NETWORK_TRANSPORTS, Transport, get_settings
 from tools import register_all_tools
 
+__all__ = ["create_server", "run_server", "cli", "main", "mcp"]
+
 
 def _load_instructions() -> str:
     """Read the user-facing instructions bundled with the server."""
@@ -46,9 +48,10 @@ def run_server(
 
     settings = get_settings()
     OrganizationWorkspace.load(settings)
-    selected_transport = transport or settings.transport
-    run_kwargs = settings.transport_kwargs(selected_transport)
-    if selected_transport not in NETWORK_TRANSPORTS:
+    selected_transport_enum = settings._normalize_transport(transport) or settings.transport
+    selected_transport_value = selected_transport_enum.value
+    run_kwargs = settings.transport_kwargs(selected_transport_value)
+    if selected_transport_value not in NETWORK_TRANSPORTS:
         run_kwargs.pop("host", None)
         run_kwargs.pop("port", None)
     if host is not None:
@@ -58,7 +61,7 @@ def run_server(
     if log_level is not None:
         run_kwargs["log_level"] = log_level
 
-    mcp.run(transport=selected_transport, **run_kwargs)
+    mcp.run(transport=selected_transport_value, **run_kwargs)
 
 
 def _build_parser() -> argparse.ArgumentParser:

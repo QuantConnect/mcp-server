@@ -9,8 +9,8 @@ from typing import Any, AsyncIterator
 import httpx
 from pydantic_core import to_jsonable_python
 
-from __init__ import __version__  # type: ignore import-not-found
 from settings import get_settings
+from version import __version__
 
 
 def _format_endpoint(endpoint: str) -> str:
@@ -43,7 +43,7 @@ def _serialize_payload(model: object | None) -> dict[str, Any]:
 @asynccontextmanager
 async def authenticated_client(
     *, follow_redirects: bool = False
-) -> AsyncIterator[tuple[httpx.AsyncClient, dict[str, str]]]:
+) -> AsyncIterator[tuple[httpx.AsyncClient, dict[str, str], Any]]:
     """Yield an authenticated AsyncClient instance with QuantConnect headers."""
 
     settings = get_settings(require_credentials=True)
@@ -53,13 +53,13 @@ async def authenticated_client(
         base_url=settings.api_base_url.rstrip("/"),
         follow_redirects=follow_redirects,
     ) as client:
-        yield client, headers
+        yield client, headers, settings
 
 
 async def post_raw(
     endpoint: str,
     model: object = None,
-    timeout: float = 30.0,
+    timeout: float | None = None,
     *,
     follow_redirects: bool = False,
 ) -> httpx.Response:
@@ -67,19 +67,27 @@ async def post_raw(
 
     async with authenticated_client(
         follow_redirects=follow_redirects
-    ) as (client, headers):
-        response = await client.post(
-            _format_endpoint(endpoint),
-            headers=headers,
-            json=_serialize_payload(model),
-            timeout=timeout,
-        )
-        response.raise_for_status()
-        return response
+    ) as (client, headers, settings):
+        timeout_value = timeout if timeout is not None else settings.api_timeout
+        try:
+            response = await client.post(
+                _format_endpoint(endpoint),
+                headers=headers,
+                json=_serialize_payload(model),
+                timeout=timeout_value,
+            )
+            response.raise_for_status()
+            return response
+        except httpx.HTTPError as exc:
+            message = f"QuantConnect API request failed for endpoint {endpoint!r}"
+            raise RuntimeError(message) from exc
 
 
-async def post(endpoint: str, model: object = None, timeout: float = 30.0):
+async def post(endpoint: str, model: object = None, timeout: float | None = None):
     """Make an HTTP POST request to the API with proper error handling."""
 
-    response = await post_raw(endpoint, model=model, timeout=timeout)
+    try:
+        response = await post_raw(endpoint, model=model, timeout=timeout)
+    except RuntimeError:
+        raise
     return response.json()

@@ -23,19 +23,22 @@ def register_object_store_tools(mcp: FastMCP) -> None:
     async def upload_object(model: ObjectStoreBinaryFile) -> RestResponse:
         """Upload a file to the Object Store."""
 
-        async with authenticated_client() as (client, headers):
-            response = await client.post(
-                "/object/set",
-                headers=headers,
-                data={
-                    "organizationId": model.organizationId,
-                    "key": model.key,
-                },
-                files={"objectData": model.objectData},
-                timeout=30.0,
-            )
-            response.raise_for_status()
-            return response.json()
+        async with authenticated_client() as (client, headers, settings):
+            try:
+                response = await client.post(
+                    "/object/set",
+                    headers=headers,
+                    data={
+                        "organizationId": model.organizationId,
+                        "key": model.key,
+                    },
+                    files={"objectData": model.objectData},
+                    timeout=settings.api_timeout,
+                )
+                response.raise_for_status()
+                return response.json()
+            except Exception as exc:  # pragma: no cover - httpx raises HTTPError subclasses
+                raise RuntimeError("Failed to upload Object Store file") from exc
 
     @mcp.tool(
         annotations={

@@ -72,10 +72,16 @@ If you omit the flags, defaults are read from the environment:
 | `MCP_TRANSPORT` | Transport to use (`auto`, `stdio`, `http`, `sse`, `websocket`, `ws`, `tcp`). |
 | `MCP_HOST` / `MCP_PORT` | Bind address and port for network transports. |
 | `MCP_LOG_LEVEL` | Override FastMCP log level (`INFO`, `DEBUG`, …). |
+| `QUANTCONNECT_API_TIMEOUT` | Default timeout (seconds) for QuantConnect API calls. |
 | `MOUNT_SOURCE_PATH` / `MOUNT_DST_PATH` | Optional Lean workspace mount configuration. |
 | `AGENT_NAME` | Model source identifier attached to project changes. |
 
 Use `uv run src/main.py --list-transports` to see the supported transport strings.
+
+### Migration Notes
+- Existing environment variable names continue to work; defaults now match the legacy behaviour (`stdio` transport).
+- Optional variables (`MCP_HOST`, `MCP_PORT`, `MCP_LOG_LEVEL`, `QUANTCONNECT_API_TIMEOUT`) can be introduced gradually—no changes required for existing deployments.
+- The new CLI entry point is exposed as `quantconnect-mcp`; existing `python src/main.py` workflows remain valid.
 
 ## Available Tools (64)
 | Tools provided by this Server | Short Description |

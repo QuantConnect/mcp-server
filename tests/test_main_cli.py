@@ -1,16 +1,16 @@
 import main
 import pytest
 
-from settings import get_settings
+from settings import clear_settings_cache
 
 
 @pytest.fixture(autouse=True)
-def _reset_settings(monkeypatch):
+def _reset_settings():
     """Ensure cached settings do not leak between tests."""
 
-    get_settings.cache_clear()
+    clear_settings_cache()
     yield
-    get_settings.cache_clear()
+    clear_settings_cache()
 
 
 def test_run_server_overrides_transport(monkeypatch):

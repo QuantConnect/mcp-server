@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import httpx
 
-from __init__ import __version__
 from mcp.server.fastmcp import FastMCP
+from version import __version__
 
 DOCKER_TAGS_URL = (
     "https://hub.docker.com/v2/namespaces/quantconnect/repositories/mcp-server/tags"

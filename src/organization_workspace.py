@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import warnings
 from pathlib import Path
 
 from settings import ServerSettings, get_settings
@@ -20,6 +21,7 @@ class OrganizationWorkspace:
     # Backwards compatibility with legacy attribute names.
     MOUNT_SOURCE: str | None = None
     MOUNT_DESTINATION: str | None = None
+    _legacy_warning_emitted = False
 
     @classmethod
     def configure(cls, settings: ServerSettings | None = None) -> None:
@@ -32,6 +34,14 @@ class OrganizationWorkspace:
         cls.MOUNT_DESTINATION = (
             str(cls.mount_destination) if cls.mount_destination else None
         )
+        if (cls.MOUNT_SOURCE or cls.MOUNT_DESTINATION) and not cls._legacy_warning_emitted:
+            warnings.warn(
+                "OrganizationWorkspace.MOUNT_SOURCE and MOUNT_DESTINATION are deprecated; "
+                "use OrganizationWorkspace.mount_source and mount_destination instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            cls._legacy_warning_emitted = True
 
     @classmethod
     def load(cls, settings: ServerSettings | None = None) -> None:
