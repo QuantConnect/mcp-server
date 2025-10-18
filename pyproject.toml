@@ -11,5 +11,8 @@ dependencies = [
     "requests"
 ]
 
+[project.scripts]
+quantconnect-mcp = "main:cli"
+
 [tool.pytest.ini_options]
 pythonpath = "src tests"
