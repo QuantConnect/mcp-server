@@ -12,6 +12,18 @@ from models import (
 from mcp.server.fastmcp import FastMCP
 
 
+def _normalize_parameters(payload: dict) -> dict:
+    """QuantConnect returns [] for parameter sets; normalize to empty dicts."""
+
+    projects = payload.get("projects")
+    if isinstance(projects, list):
+        for project in projects:
+            parameters = project.get("parameters")
+            if parameters == []:
+                project["parameters"] = {}
+    return payload
+
+
 def register_project_tools(mcp: FastMCP) -> None:
     """Expose project management helpers."""
 
@@ -25,19 +37,22 @@ def register_project_tools(mcp: FastMCP) -> None:
     async def create_project(model: CreateProjectRequest) -> ProjectListResponse:
         """Create a new project in the default organization."""
 
-        return await post("/projects/create", model)
+        payload = await post("/projects/create", model)
+        return _normalize_parameters(payload)
 
     @mcp.tool(annotations={"title": "Read project", "readOnlyHint": True})
     async def read_project(model: ReadProjectRequest) -> ProjectListResponse:
         """Return information for a specific project or recent projects."""
 
-        return await post("/projects/read", model)
+        payload = await post("/projects/read", model)
+        return _normalize_parameters(payload)
 
     @mcp.tool(annotations={"title": "List projects", "readOnlyHint": True})
     async def list_projects() -> ProjectListResponse:
         """List all projects in the organization."""
 
-        return await post("/projects/read")
+        payload = await post("/projects/read")
+        return _normalize_parameters(payload)
 
     @mcp.tool(annotations={"title": "Update project", "idempotentHint": True})
     async def update_project(model: UpdateProjectRequest) -> RestResponse:

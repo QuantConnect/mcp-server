@@ -14,7 +14,7 @@ class Transport(str, Enum):
 
     AUTO = "auto"
     STDIO = "stdio"
-    HTTP = "http"
+    HTTP = "streamable-http"
     SSE = "sse"
     WEBSOCKET = "websocket"
     WS = "ws"
@@ -149,8 +149,16 @@ class ServerSettings(BaseModel):
             return None
         if isinstance(value, Transport):
             return value
+        normalized_value = value.lower()
+        alias_map = {
+            "http": Transport.HTTP,
+            "streamable-http": Transport.HTTP,
+            "streamablehttp": Transport.HTTP,
+        }
+        if normalized_value in alias_map:
+            return alias_map[normalized_value]
         try:
-            return Transport(value.lower())
+            return Transport(normalized_value)
         except ValueError as exc:
             valid = ", ".join(t.value for t in Transport)
             raise RuntimeError(f"Unsupported transport '{value}'. Expected one of {valid}.") from exc

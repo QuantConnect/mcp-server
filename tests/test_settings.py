@@ -19,7 +19,7 @@ def test_transport_kwargs_for_network_transport():
     settings = resolve_settings(env={"MCP_TRANSPORT": "auto"})
     kwargs = settings.transport_kwargs("http")
     assert kwargs["host"] == DEFAULT_TRANSPORT_HOST
-    assert kwargs["port"] == DEFAULT_TRANSPORT_PORTS["http"]
+    assert kwargs["port"] == DEFAULT_TRANSPORT_PORTS[Transport.HTTP.value]
 
 
 def test_ensure_credentials_raises_when_missing():

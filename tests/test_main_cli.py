@@ -17,10 +17,20 @@ def test_run_server_overrides_transport(monkeypatch):
     monkeypatch.setenv("MCP_TRANSPORT", "auto")
     recorded = {}
 
+    class DummySettings:
+        def __init__(self):
+            self.host = None
+            self.port = None
+            self.log_level = None
+
     class DummyServer:
+        def __init__(self):
+            self.settings = DummySettings()
+
         def run(self, *, transport, **kwargs):
             recorded["transport"] = transport
             recorded["kwargs"] = kwargs
+            recorded["settings"] = self.settings
 
     monkeypatch.setattr(main, "mcp", DummyServer())
 
@@ -31,10 +41,11 @@ def test_run_server_overrides_transport(monkeypatch):
         log_level="DEBUG",
     )
 
-    assert recorded["transport"] == "http"
-    assert recorded["kwargs"]["host"] == "1.2.3.4"
-    assert recorded["kwargs"]["port"] == 9000
-    assert recorded["kwargs"]["log_level"] == "DEBUG"
+    assert recorded["transport"] == "streamable-http"
+    assert recorded["kwargs"] == {}
+    assert recorded["settings"].host == "1.2.3.4"
+    assert recorded["settings"].port == 9000
+    assert recorded["settings"].log_level == "DEBUG"
 
 
 def test_cli_lists_transports(monkeypatch, capsys):

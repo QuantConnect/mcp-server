@@ -62,21 +62,21 @@ If you have an ARM chip, add the `--platform linux/arm64` option.
 For local development you can execute the server directly with Python. The `main.py` entry point now provides a full CLI so you can select any FastMCP transport:
 
 ```bash
-uv run src/main.py --transport http --host 0.0.0.0 --port 8900
+uv run src/main.py --transport streamable-http --host 0.0.0.0 --port 8900
 ```
 
 If you omit the flags, defaults are read from the environment:
 
 | Variable | Purpose |
 | --- | --- |
-| `MCP_TRANSPORT` | Transport to use (`auto`, `stdio`, `http`, `sse`, `websocket`, `ws`, `tcp`). |
+| `MCP_TRANSPORT` | Transport to use (`auto`, `stdio`, `streamable-http`, `sse`, `websocket`, `ws`, `tcp`). |
 | `MCP_HOST` / `MCP_PORT` | Bind address and port for network transports. |
 | `MCP_LOG_LEVEL` | Override FastMCP log level (`INFO`, `DEBUG`, …). |
 | `QUANTCONNECT_API_TIMEOUT` | Default timeout (seconds) for QuantConnect API calls. |
 | `MOUNT_SOURCE_PATH` / `MOUNT_DST_PATH` | Optional Lean workspace mount configuration. |
 | `AGENT_NAME` | Model source identifier attached to project changes. |
 
-Use `uv run src/main.py --list-transports` to see the supported transport strings.
+Use `uv run src/main.py --list-transports` to see the supported transport strings (alias: `http` maps to `streamable-http`).
 
 ### Migration Notes
 - Existing environment variable names continue to work; defaults now match the legacy behaviour (`stdio` transport).

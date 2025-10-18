@@ -50,16 +50,34 @@ def run_server(
     OrganizationWorkspace.load(settings)
     selected_transport_enum = settings._normalize_transport(transport) or settings.transport
     selected_transport_value = selected_transport_enum.value
-    run_kwargs = settings.transport_kwargs(selected_transport_value)
-    if selected_transport_value not in NETWORK_TRANSPORTS:
-        run_kwargs.pop("host", None)
-        run_kwargs.pop("port", None)
-    if host is not None:
-        run_kwargs["host"] = host
-    if port is not None:
-        run_kwargs["port"] = port
+    run_kwargs = {}
+    transport_kwargs = settings.transport_kwargs(selected_transport_value)
+    log_value = transport_kwargs.get("log_level")
+
+    host_value = host if host is not None else settings.transport_host
+    port_value = port if port is not None else settings.transport_port
+    if selected_transport_value in NETWORK_TRANSPORTS:
+        if host_value is not None:
+            try:
+                mcp.settings.host = host_value  # type: ignore[attr-defined]
+            except AttributeError as exc:  # pragma: no cover - depends on fastmcp version
+                raise RuntimeError("Installed FastMCP version does not support host override via CLI.") from exc
+        if port_value is not None:
+            try:
+                mcp.settings.port = port_value  # type: ignore[attr-defined]
+            except AttributeError as exc:  # pragma: no cover - depends on fastmcp version
+                raise RuntimeError("Installed FastMCP version does not support port override via CLI.") from exc
+    else:
+        if host is not None or port is not None:
+            raise RuntimeError("STDIO transport does not support host or port overrides.")
+
     if log_level is not None:
-        run_kwargs["log_level"] = log_level
+        log_value = log_level
+    if log_value is not None:
+        try:
+            mcp.settings.log_level = log_value  # type: ignore[attr-defined]
+        except AttributeError as exc:  # pragma: no cover
+            raise RuntimeError("Installed FastMCP version does not support log level override via CLI.") from exc
 
     mcp.run(transport=selected_transport_value, **run_kwargs)
 
