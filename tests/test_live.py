@@ -231,7 +231,7 @@ class TestLive:
             'quantity': 1,
             'averagePrice': 100_000
         }
-        response = await Live.create(
+        await Live.create(
             project_id, compile_id, await Live.get_node_id(project_id),
             brokerage={'id': 'QuantConnectBrokerage', 'holdings': [holding]}
         )
@@ -272,5 +272,4 @@ class TestLive:
         assert algorithms
         for algo in algorithms:
             assert algo.status == 'Stopped'
-
 

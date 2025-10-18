@@ -11,7 +11,6 @@ from utils import (
 )
 from models import (
     CreateCollaboratorRequest,
-    ReadCollaboratorsRequest,
     UpdateCollaboratorRequest,
     DeleteCollaboratorRequest,
     CreateCollaboratorResponse,

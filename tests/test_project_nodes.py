@@ -9,7 +9,6 @@ from utils import (
 )
 from models import (
     ReadProjectNodesRequest,
-    UpdateProjectNodesRequest,
     ProjectNodesResponse
 )
 

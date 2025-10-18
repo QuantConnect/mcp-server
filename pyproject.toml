@@ -10,10 +10,18 @@ dependencies = [
     "mcp[cli]>=1.9.3",
     "requests",
     "fastmcp>=2.12.5",
+    "ruff>=0.14.1",
 ]
 
 [project.scripts]
 quantconnect-mcp = "main:cli"
+
+[tool.ruff]
+target-version = "py310"
+exclude = ["tests/algorithms/syntax_errors.py"]
+
+[tool.ruff.lint]
+per-file-ignores = {"tests/algorithms/*.py" = ["F403", "F405"]}
 
 [tool.pytest.ini_options]
 pythonpath = "src tests"

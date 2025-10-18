@@ -64,7 +64,12 @@ def create_tool_details(tools):
                 elif '$ref' in meta:
                     model_name = meta['$ref'].split("/")[-1]
                     data_type = defs[model_name]['type']
-                content += f"| `{name}` | `{data_type}` {'' if required else '*optional*'} | {meta['description'].split('\n')[0]} |\n"
+                description = meta.get('description', '')
+                first_line = description.splitlines()[0] if description else ''
+                optional_suffix = '' if required else '*optional*'
+                content += (
+                    f"| `{name}` | `{data_type}` {optional_suffix} | {first_line} |\n"
+                )
 
         # These default values come from  https://modelcontextprotocol.io/docs/concepts/tools#available-tool-annotations
         read_only = tool['annotations'].get('readOnlyHint', False)
