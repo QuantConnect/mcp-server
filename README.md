@@ -62,6 +62,10 @@ If you have an ARM chip, add the `--platform linux/arm64` option.
 For local development you can execute the server directly with Python. The `main.py` entry point now provides a full CLI so you can select any FastMCP transport:
 
 ```bash
+# Install with development dependencies for testing and linting
+uv sync --extra dev
+
+# Run the server
 uv run src/main.py --transport streamable-http --host 0.0.0.0 --port 8900
 ```
 
@@ -77,6 +81,22 @@ If you omit the flags, defaults are read from the environment:
 | `AGENT_NAME` | Model source identifier attached to project changes. |
 
 Use `uv run src/main.py --list-transports` to see the supported transport strings (alias: `http` maps to `streamable-http`).
+
+#### Development Dependencies
+Testing and linting tools (pytest, ruff) are available as optional development dependencies:
+
+```bash
+# Install with dev dependencies for development work
+uv sync --extra dev
+
+# Run tests
+uv run pytest
+
+# Run linting
+uv run ruff check
+```
+
+For production use, these development tools are not installed by default.
 
 ### Migration Notes
 - Existing environment variable names continue to work; defaults now match the legacy behaviour (`stdio` transport).
