@@ -27,6 +27,13 @@ from models import (
 # Load the organization Id from the environment variables.
 ORGANIZATION_ID = os.getenv('QUANTCONNECT_ORGANIZATION_ID')
 
+if os.getenv("RUN_QUANTCONNECT_API_TESTS") != "1":
+    pytest.skip(
+        "QuantConnect Object Store integration tests disabled. "
+        "Set RUN_QUANTCONNECT_API_TESTS=1 to enable.",
+        allow_module_level=True,
+    )
+
 
 # Static helpers for common operations:
 class ObjectStore:
