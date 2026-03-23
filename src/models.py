@@ -6,6 +6,7 @@ from __future__ import annotations
 from pydantic import RootModel, ConfigDict
 
 from datetime import datetime, time
+datetime = str  # QC API returns non-ISO datetime strings; avoid format: date-time in JSON schema
 from enum import Enum
 from typing import Annotated, Any, Dict, List, Optional, Union
 
@@ -2186,8 +2187,8 @@ class OrderSubmissionData(BaseModel):
     ] = None
 
 
-class ParameterSet1(BaseModel):
-    RootModel: Annotated[List, Field(max_items=0)]
+class ParameterSet1(RootModel):
+    root: Any = None
 
 
 class Holding(BaseModel):
