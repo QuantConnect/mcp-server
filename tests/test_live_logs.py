@@ -1,12 +1,12 @@
 import pytest
-from time import time, sleep
+from time import sleep
 
 from main import mcp
 from test_live import Live
 from test_files import Files
 from test_project import Project
 from utils import validate_models
-from models import ReadLiveLogsRequest, ReadLiveLogsResponse
+from models import ReadLiveLogsResponse
 
 
 # Static helpers for common operations:

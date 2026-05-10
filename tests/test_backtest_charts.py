@@ -2,8 +2,6 @@ import pytest
 
 from main import mcp
 from test_project import Project
-from test_compile import Compile
-from test_files import Files
 from test_backtests import Backtest
 from utils import (
     validate_models, 

@@ -1,8 +1,13 @@
-import os
+from __future__ import annotations
 
-# Load the agent name from the environment variables.
-AGENT_NAME = os.getenv('AGENT_NAME', 'MCP Server')
+from pydantic import BaseModel
 
-def add_code_source_id(model):
-    model.codeSourceId = AGENT_NAME
-    return model
+from settings import get_settings
+
+
+def add_code_source_id(model: BaseModel) -> BaseModel:
+    """Attach the configured agent identifier to the request model."""
+
+    agent_name = get_settings().agent_name
+    # Using model_copy avoids mutating the caller's instance.
+    return model.model_copy(update={"codeSourceId": agent_name})

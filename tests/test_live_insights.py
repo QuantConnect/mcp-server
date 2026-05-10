@@ -62,9 +62,9 @@ class TestLiveInsights:
             insight.type == 'price'
             insight.direction == ['up', 'flat'][i%2]
             insight.period == 24*60*60 # seconds in a day
-            insight.magnitude == None
-            insight.confidence == None
-            insight.weight == None
-            insight.tag == None
+            insight.magnitude is None
+            insight.confidence is None
+            insight.weight is None
+            insight.tag is None
         # Delete the project to clean up.
         await Project.delete(project_id)

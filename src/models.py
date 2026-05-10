@@ -3,7 +3,6 @@
 #   timestamp: 2025-09-09T14:33:02+00:00
 
 from __future__ import annotations
-from pydantic import RootModel, ConfigDict
 
 from datetime import datetime, time
 from enum import Enum

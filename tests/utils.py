@@ -1,9 +1,20 @@
+import os
 import pytest
 from types import UnionType
 import jsonschema
 from json import loads
 from pydantic import ValidationError, TypeAdapter
 from datetime import datetime
+
+_RUN_QUANTCONNECT_API_TESTS = os.getenv("RUN_QUANTCONNECT_API_TESTS") == "1"
+
+
+def _require_quantconnect_api_tests() -> None:
+    if not _RUN_QUANTCONNECT_API_TESTS:
+        pytest.skip(
+            "QuantConnect integration tests disabled. "
+            "Set RUN_QUANTCONNECT_API_TESTS=1 to enable network-backed tests."
+        )
 
 async def validate_response(
         mcp, tool_name, structured_response, output_class):
@@ -21,6 +32,7 @@ async def validate_response(
 async def validate_models(
         mcp, tool_name, input_args={}, output_class=None, 
         success_expected=True):
+    _require_quantconnect_api_tests()
     # Call the tool with the arguments. If the input args are invalid,
     # it raises an error.
     unstructured_response, structured_response = await mcp.call_tool(

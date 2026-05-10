@@ -1,105 +1,101 @@
-from api_connection import post, httpx, get_headers, BASE_URL
+from __future__ import annotations
+
+from api_connection import authenticated_client, post
 from models import (
-    ObjectStoreBinaryFile,
-    GetObjectStorePropertiesRequest,
-    GetObjectStoreJobIdRequest,
-    GetObjectStoreURLRequest,
-    ListObjectStoreRequest,
     DeleteObjectStoreRequest,
+    GetObjectStoreJobIdRequest,
+    GetObjectStorePropertiesRequest,
     GetObjectStorePropertiesResponse,
     GetObjectStoreResponse,
+    GetObjectStoreURLRequest,
+    ListObjectStoreRequest,
     ListObjectStoreResponse,
-    RestResponse
+    ObjectStoreBinaryFile,
+    RestResponse,
 )
+from mcp.server.fastmcp import FastMCP
 
-def register_object_store_tools(mcp):
-    # Create
+
+def register_object_store_tools(mcp: FastMCP) -> None:
+    """Expose QuantConnect Object Store utilities."""
+
+    @mcp.tool(annotations={"title": "Upload Object Store file", "idempotentHint": True})
+    async def upload_object(model: ObjectStoreBinaryFile) -> RestResponse:
+        """Upload a file to the Object Store."""
+
+        async with authenticated_client() as (client, headers, settings):
+            try:
+                response = await client.post(
+                    "/object/set",
+                    headers=headers,
+                    data={
+                        "organizationId": model.organizationId,
+                        "key": model.key,
+                    },
+                    files={"objectData": model.objectData},
+                    timeout=settings.api_timeout,
+                )
+                response.raise_for_status()
+                return response.json()
+            except Exception as exc:  # pragma: no cover - httpx raises HTTPError subclasses
+                raise RuntimeError("Failed to upload Object Store file") from exc
+
     @mcp.tool(
         annotations={
-            'title': 'Upload Object Store file', 'idempotentHint': True
-        }
-    )
-    async def upload_object(
-            model: ObjectStoreBinaryFile) -> RestResponse:
-        """Upload files to the Object Store."""
-        # This endpoint is unique because post request requires `data` 
-        # and `files` arguments.
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f'{BASE_URL}/object/set', 
-                headers=get_headers(), 
-                data={
-                    'organizationId': model.organizationId,
-                    'key': model.key
-                }, 
-                files={'objectData': model.objectData},
-                timeout=30.0
-            )
-            response.raise_for_status()
-            return response.json()
-
-    # Read file metadata
-    @mcp.tool(
-        annotations={
-            'title': 'Read Object Store file properties', 'readOnlyHint': True
+            "title": "Read Object Store file properties",
+            "readOnlyHint": True,
         }
     )
     async def read_object_properties(
-            model: GetObjectStorePropertiesRequest
-        ) -> GetObjectStorePropertiesResponse:
-        """Get Object Store properties of a specific organization and 
-        key. 
+        model: GetObjectStorePropertiesRequest,
+    ) -> GetObjectStorePropertiesResponse:
+        """Read metadata for a specific Object Store key."""
 
-        It doesn't work if the key is a directory in the Object Store.
-        """
-        return await post('/object/properties', model)
+        return await post("/object/properties", model)
 
-    # Read file job Id
     @mcp.tool(
         annotations={
-            'title': 'Read Object Store file job Id', 'destructiveHint': False
+            "title": "Read Object Store file job Id",
+            "destructiveHint": False,
         }
     )
     async def read_object_store_file_job_id(
-            model: GetObjectStoreJobIdRequest) -> GetObjectStoreResponse:
-        """Create a job to download files from the Object Store and 
-        then read the job Id.
-        """
-        return await post('/object/get', model)
+        model: GetObjectStoreJobIdRequest,
+    ) -> GetObjectStoreResponse:
+        """Create a download job and return its identifier."""
 
-    # Read file download URL
+        return await post("/object/get", model)
+
     @mcp.tool(
         annotations={
-            'title': 'Read Object Store file download URL',
-            'readOnlyHint': True
+            "title": "Read Object Store file download URL",
+            "readOnlyHint": True,
         }
     )
     async def read_object_store_file_download_url(
-            model: GetObjectStoreURLRequest) -> GetObjectStoreResponse:
-        """Get the URL for downloading files from the Object Store."""
-        return await post('/object/get', model)
+        model: GetObjectStoreURLRequest,
+    ) -> GetObjectStoreResponse:
+        """Return a pre-signed download URL for an Object Store key."""
 
-    # Read all files
+        return await post("/object/get", model)
+
     @mcp.tool(
-        annotations={'title': 'List Object Store files', 'readOnlyHint': True}
+        annotations={"title": "List Object Store files", "readOnlyHint": True}
     )
     async def list_object_store_files(
-            model: ListObjectStoreRequest) -> ListObjectStoreResponse:
-        """List the Object Store files under a specific directory in 
-        an organization.
-        """
-        return await post('/object/list', model)
+        model: ListObjectStoreRequest,
+    ) -> ListObjectStoreResponse:
+        """List Object Store files within a directory."""
 
-    # Delete
+        return await post("/object/list", model)
+
     @mcp.tool(
         annotations={
-            'title': 'Delete Object Store file',
-            'idempotentHint': True
+            "title": "Delete Object Store file",
+            "idempotentHint": True,
         }
     )
-    async def delete_object(
-            model: DeleteObjectStoreRequest) -> RestResponse:
-        """Delete the Object Store file of a specific organization and 
-        key.
-        """
-        return await post('/object/delete', model)
+    async def delete_object(model: DeleteObjectStoreRequest) -> RestResponse:
+        """Delete an Object Store key."""
+
+        return await post("/object/delete", model)

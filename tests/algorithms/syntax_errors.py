@@ -1,3 +1,4 @@
+# ruff: skip-file
 from AlgorithmImports import *
 
 

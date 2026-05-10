@@ -1,52 +1,140 @@
-import os
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+from typing import Sequence
+
 from mcp.server.fastmcp import FastMCP
 
-from tools.account import register_account_tools
-from tools.project import register_project_tools
-from tools.project_collaboration import register_project_collaboration_tools
-from tools.project_nodes import register_project_node_tools
-from tools.compile import register_compile_tools
-from tools.files import register_file_tools
-from tools.backtests import register_backtest_tools
-from tools.optimizations import register_optimization_tools
-from tools.live import register_live_trading_tools
-from tools.live_commands import register_live_trading_command_tools
-from tools.object_store import register_object_store_tools
-from tools.lean_versions import register_lean_version_tools
-from tools.ai import register_ai_tools
-from tools.mcp_server_version import register_mcp_server_version_tools
 from organization_workspace import OrganizationWorkspace
+from settings import NETWORK_TRANSPORTS, Transport, get_settings
+from tools import register_all_tools
 
-transport = os.getenv('MCP_TRANSPORT', 'stdio')
+__all__ = ["create_server", "run_server", "cli", "main", "mcp"]
 
-# Load the server instructions.
-with open('src/instructions.md', 'r', encoding='utf-8') as file:
-    instructions = file.read()
-# Initialize the FastMCP server.
-mcp = FastMCP('quantconnect', instructions, host="0.0.0.0")
 
-# Register all the tools.
-registration_functions = [
-    register_account_tools,
-    register_project_tools,
-    register_project_collaboration_tools,
-    register_project_node_tools,
-    register_compile_tools,
-    register_file_tools,
-    register_backtest_tools,
-    register_optimization_tools,
-    register_live_trading_tools,
-    register_live_trading_command_tools,
-    register_object_store_tools,
-    register_lean_version_tools,
-    register_ai_tools,
-    register_mcp_server_version_tools,
-]
-for f in registration_functions:
-    f(mcp)
+def _load_instructions() -> str:
+    """Read the user-facing instructions bundled with the server."""
+
+    instructions_path = Path(__file__).with_name("instructions.md")
+    return instructions_path.read_text(encoding="utf-8")
+
+
+def create_server() -> FastMCP:
+    """Instantiate the FastMCP server with all registered tools."""
+
+    mcp = FastMCP(name="quantconnect", instructions=_load_instructions())
+    register_all_tools(mcp)
+    return mcp
+
+
+mcp = create_server()
+
+
+AVAILABLE_TRANSPORTS = tuple(
+    sorted({Transport.AUTO.value, Transport.STDIO.value, *NETWORK_TRANSPORTS})
+)
+
+
+def run_server(
+    *,
+    transport: str | None = None,
+    host: str | None = None,
+    port: int | None = None,
+    log_level: str | None = None,
+) -> None:
+    """Run the MCP server with the provided transport configuration."""
+
+    settings = get_settings()
+    OrganizationWorkspace.load(settings)
+    selected_transport_enum = settings._normalize_transport(transport) or settings.transport
+    selected_transport_value = selected_transport_enum.value
+    run_kwargs = {}
+    transport_kwargs = settings.transport_kwargs(selected_transport_value)
+    log_value = transport_kwargs.get("log_level")
+
+    host_value = host if host is not None else settings.transport_host
+    port_value = port if port is not None else settings.transport_port
+    if selected_transport_value in NETWORK_TRANSPORTS:
+        if host_value is not None:
+            try:
+                mcp.settings.host = host_value  # type: ignore[attr-defined]
+            except AttributeError as exc:  # pragma: no cover - depends on fastmcp version
+                raise RuntimeError("Installed FastMCP version does not support host override via CLI.") from exc
+        if port_value is not None:
+            try:
+                mcp.settings.port = port_value  # type: ignore[attr-defined]
+            except AttributeError as exc:  # pragma: no cover - depends on fastmcp version
+                raise RuntimeError("Installed FastMCP version does not support port override via CLI.") from exc
+    else:
+        if host is not None or port is not None:
+            raise RuntimeError("STDIO transport does not support host or port overrides.")
+
+    if log_level is not None:
+        log_value = log_level
+    if log_value is not None:
+        try:
+            mcp.settings.log_level = log_value  # type: ignore[attr-defined]
+        except AttributeError as exc:  # pragma: no cover
+            raise RuntimeError("Installed FastMCP version does not support log level override via CLI.") from exc
+
+    mcp.run(transport=selected_transport_value, **run_kwargs)
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="QuantConnect MCP server powered by FastMCP."
+    )
+    parser.add_argument(
+        "--transport",
+        choices=AVAILABLE_TRANSPORTS,
+        help="Transport to use when serving MCP (default: value from MCP_TRANSPORT).",
+    )
+    parser.add_argument(
+        "--host",
+        help="Host/interface to bind for network transports.",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        help="Port to bind for network transports.",
+    )
+    parser.add_argument(
+        "--log-level",
+        help="Override FastMCP log level for this run.",
+    )
+    parser.add_argument(
+        "--list-transports",
+        action="store_true",
+        help="List supported transports and exit.",
+    )
+    return parser
+
+
+def cli(argv: Sequence[str] | None = None) -> None:
+    """Command-line interface for running the MCP server."""
+
+    parser = _build_parser()
+    args = parser.parse_args(list(argv) if argv is not None else None)
+
+    if args.list_transports:
+        print("Available transports:", ", ".join(AVAILABLE_TRANSPORTS))
+        return
+
+    run_server(
+        transport=args.transport,
+        host=args.host,
+        port=args.port,
+        log_level=args.log_level,
+    )
+
+
+def main() -> None:
+    """Default entry-point used by legacy invocations."""
+
+    run_server()
+
 
 if __name__ == "__main__":
-    # Load the organization workspace.
-    OrganizationWorkspace.load()
-    # Run the server.
-    mcp.run(transport=transport)
+    cli(sys.argv[1:])

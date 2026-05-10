@@ -12,7 +12,6 @@ from utils import (
 )
 from models import (
     ReadLiveChartRequest,
-    LoadingResponse,
     ReadChartResponse,
 )
 
