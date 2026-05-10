@@ -1,16 +1,19 @@
 from api_connection import post
 from models import (
-    CreateProjectRequest, 
-    ReadProjectRequest, 
+    CreateProjectRequest,
+    ReadProjectRequest,
     UpdateProjectRequest,
     DeleteProjectRequest,
     ProjectListResponse,
     RestResponse
 )
+from tool_args import tool_with_args
 
 def register_project_tools(mcp):
     # Create
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        CreateProjectRequest,
         annotations={
             'title': 'Create project',
             'destructiveHint': False,
@@ -22,25 +25,40 @@ def register_project_tools(mcp):
         return await post('/projects/create', model)
 
     # Read (singular)
-    @mcp.tool(annotations={'title': 'Read project', 'readOnlyHint': True})
+    @tool_with_args(
+        mcp,
+        ReadProjectRequest,
+        annotations={'title': 'Read project', 'readOnlyHint': True}
+    )
     async def read_project(model: ReadProjectRequest) -> ProjectListResponse:
         """List the details of a project or a set of recent projects."""
         return await post('/projects/read', model)
     
     # Read (all)
-    @mcp.tool(annotations={'title': 'List projects', 'readOnlyHint': True})
+    @tool_with_args(
+        mcp,
+        annotations={'title': 'List projects', 'readOnlyHint': True}
+    )
     async def list_projects() -> ProjectListResponse:
         """List the details of all projects."""
         return await post('/projects/read')
 
     # Update
-    @mcp.tool(annotations={'title': 'Update project', 'idempotentHint': True})
+    @tool_with_args(
+        mcp,
+        UpdateProjectRequest,
+        annotations={'title': 'Update project', 'idempotentHint': True}
+    )
     async def update_project(model: UpdateProjectRequest) -> RestResponse:
         """Update a project's name or description."""
         return await post('/projects/update', model)
         
     # Delete
-    @mcp.tool(annotations={'title': 'Delete project', 'idempotentHint': True})
+    @tool_with_args(
+        mcp,
+        DeleteProjectRequest,
+        annotations={'title': 'Delete project', 'idempotentHint': True}
+    )
     async def delete_project(model: DeleteProjectRequest) -> RestResponse:
         """Delete a project."""
         return await post('/projects/delete', model)

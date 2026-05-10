@@ -19,10 +19,13 @@ from models import (
     BacktestReportGeneratingResponse,
     RestResponse
 )
+from tool_args import tool_with_args
 
 def register_backtest_tools(mcp):
     # Create
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        CreateBacktestRequest,
         annotations={
             'title': 'Create backtest',
             'destructiveHint': False
@@ -34,20 +37,30 @@ def register_backtest_tools(mcp):
         return await post('/backtests/create', model)
 
     # Read statistics for a single backtest.
-    @mcp.tool(annotations={'title': 'Read backtest', 'readOnlyHint': True})
+    @tool_with_args(
+        mcp,
+        ReadBacktestRequest,
+        annotations={'title': 'Read backtest', 'readOnlyHint': True}
+    )
     async def read_backtest(model: ReadBacktestRequest) -> BacktestResponse:
         """Read the results of a backtest."""
         return await post('/backtests/read', model)
 
     # Read a summary of all the backtests.
-    @mcp.tool(annotations={'title': 'List backtests', 'readOnlyHint': True})
+    @tool_with_args(
+        mcp,
+        ListBacktestRequest,
+        annotations={'title': 'List backtests', 'readOnlyHint': True}
+    )
     async def list_backtests(
             model: ListBacktestRequest) -> BacktestSummaryResponse:
         """List all the backtests for the project."""
         return await post('/backtests/list', model)
 
     # Read the chart of a single backtest.
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        ReadBacktestChartRequest,
         annotations={'title': 'Read backtest chart', 'readOnlyHint': True}
     )
     async def read_backtest_chart(
@@ -56,7 +69,9 @@ def register_backtest_tools(mcp):
         return await post('/backtests/chart/read', model)
     
     # Read the orders of a single backtest.
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        ReadBacktestOrdersRequest,
         annotations={'title': 'Read backtest orders', 'readOnlyHint': True}
     )
     async def read_backtest_orders(
@@ -65,7 +80,9 @@ def register_backtest_tools(mcp):
         return await post('/backtests/orders/read', model)
     
     # Read the insights of a single backtest.
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        ReadBacktestInsightsRequest,
         annotations={'title': 'Read backtest insights', 'readOnlyHint': True}
     )
     async def read_backtest_insights(
@@ -84,7 +101,9 @@ def register_backtest_tools(mcp):
     #    return await post('/backtests/read/report', model)
 
     # Update
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        UpdateBacktestRequest,
         annotations={'title': 'Update backtest', 'idempotentHint': True}
     )
     async def update_backtest(model: UpdateBacktestRequest) -> RestResponse:
@@ -92,7 +111,9 @@ def register_backtest_tools(mcp):
         return await post('/backtests/update', model)
     
     # Delete
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        DeleteBacktestRequest,
         annotations={'title': 'Delete backtest', 'idempotentHint': True}
     )
     async def delete_backtest(model: DeleteBacktestRequest) -> RestResponse:

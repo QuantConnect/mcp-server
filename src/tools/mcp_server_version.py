@@ -1,10 +1,12 @@
 from __init__ import __version__
 
 import requests
+from tool_args import tool_with_args
 
 def register_mcp_server_version_tools(mcp):
     # Read current version
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
         annotations={
             'title': 'Read QC MCP Server version', 'readOnlyHint': True
         }
@@ -14,7 +16,8 @@ def register_mcp_server_version_tools(mcp):
         return __version__
 
     # Read latest version
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
         annotations={
             'title': 'Read latest QC MCP Server version', 'readOnlyHint': True
         }

@@ -14,10 +14,13 @@ from models import (
     SyntaxCheckResponse,
     SearchResponse
 )
+from tool_args import tool_with_args
 
 def register_ai_tools(mcp):
     # Get backtest initialization errors
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        BasicFilesRequest,
         annotations={
             'title': 'Check initialization errors', 'readOnlyHint': True
         }
@@ -29,14 +32,20 @@ def register_ai_tools(mcp):
         return await post('/ai/tools/backtest-init', model)
     
     # Complete code
-    @mcp.tool(annotations={'title': 'Complete code', 'readOnlyHint': True})
+    @tool_with_args(
+        mcp,
+        CodeCompletionRequest,
+        annotations={'title': 'Complete code', 'readOnlyHint': True}
+    )
     async def complete_code(
             model: CodeCompletionRequest) -> CodeCompletionResponse:
         """Show the code completion for a specific text input."""
         return await post('/ai/tools/complete', model)
 
     # Enchance error message
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        ErrorEnhanceRequest,
         annotations={'title': 'Enhance error message', 'readOnlyHint': True}
     )
     async def enhance_error_message(
@@ -45,7 +54,9 @@ def register_ai_tools(mcp):
         return await post('/ai/tools/error-enhance', model)
 
     # Update code to PEP8
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        PEP8ConvertRequest,
         annotations={'title': 'Update code to PEP8', 'readOnlyHint': True}
     )
     async def update_code_to_pep8(
@@ -54,13 +65,21 @@ def register_ai_tools(mcp):
         return await post('/ai/tools/pep8-convert', model)
 
     # Check syntax
-    @mcp.tool(annotations={'title': 'Check syntax', 'readOnlyHint': True})
+    @tool_with_args(
+        mcp,
+        BasicFilesRequest,
+        annotations={'title': 'Check syntax', 'readOnlyHint': True}
+    )
     async def check_syntax(model: BasicFilesRequest) -> SyntaxCheckResponse:
         """Check the syntax of a code."""
         return await post('/ai/tools/syntax-check', model)
 
     # Search
-    @mcp.tool(annotations={'title': 'Search QuantConnect', 'readOnlyHint': True})
+    @tool_with_args(
+        mcp,
+        SearchRequest,
+        annotations={'title': 'Search QuantConnect', 'readOnlyHint': True}
+    )
     async def search_quantconnect(model: SearchRequest) -> SearchResponse:
         """Search for content in QuantConnect."""
         return await post('/ai/tools/search', model)

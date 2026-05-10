@@ -12,10 +12,13 @@ from models import (
     ReadOptimizationResponse,
     RestResponse
 )
+from tool_args import tool_with_args
 
 def register_optimization_tools(mcp):
     # Estimate cost
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        EstimateOptimizationRequest,
         annotations={
             'title': 'Estimate optimization time',
             'readOnlyHint': True,
@@ -29,7 +32,9 @@ def register_optimization_tools(mcp):
         return await post('/optimizations/estimate', model)
 
     # Create
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        CreateOptimizationRequest,
         annotations={
             'title': 'Create optimization',
             'destructiveHint': False
@@ -41,7 +46,9 @@ def register_optimization_tools(mcp):
         return await post('/optimizations/create', model)
 
     # Read a single optimization job.
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        ReadOptimizationRequest,
         annotations={'title': 'Read optimization', 'readOnlyHint': True}
     )
     async def read_optimization(
@@ -50,7 +57,9 @@ def register_optimization_tools(mcp):
         return await post('/optimizations/read', model)
 
     # Read all optimizations for a project.
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        ListOptimizationRequest,
         annotations={'title': 'List optimizations', 'readOnlyHint': True}
     )
     async def list_optimizations(
@@ -59,7 +68,9 @@ def register_optimization_tools(mcp):
         return await post('/optimizations/list', model)
 
     # Update the optimization name.
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        UpdateOptimizationRequest,
         annotations={'title': 'Update optimization', 'idempotentHint': True}
     )
     async def update_optimization(
@@ -68,7 +79,9 @@ def register_optimization_tools(mcp):
         return await post('/optimizations/update', model)
 
     # Update the optimization status (stop).
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        AbortOptimizationRequest,
         annotations={'title': 'Abort optimization', 'idempotentHint': True}
     )
     async def abort_optimization(
@@ -77,7 +90,9 @@ def register_optimization_tools(mcp):
         return await post('/optimizations/abort', model)
 
     # Delete
-    @mcp.tool(
+    @tool_with_args(
+        mcp,
+        DeleteOptimizationRequest,
         annotations={'title': 'Delete optimization', 'idempotentHint': True}
     )
     async def delete_optimization(model: DeleteOptimizationRequest) -> RestResponse:

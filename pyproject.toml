@@ -8,8 +8,9 @@ dependencies = [
     "python-dotenv>=0.23.0",
     "httpx>=0.28.1",
     "mcp[cli]>=1.9.3",
-    "requests"
+    "pydantic>=2",
+    "requests>=2"
 ]
 
 [tool.pytest.ini_options]
-pythonpath = "src tests"
+pythonpath = ["src"]
