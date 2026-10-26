@@ -49,6 +49,8 @@ To connect local MCP clients (like Claude Desktop) to the QC MCP Server, follow 
 
   If you simultaneously run multiple agents, set a unique value for the `AGENT_NAME` environment variable for each agent to keep record of the request source. 
 
+  The server calls the QuantConnect API at `https://www.quantconnect.com/api/v2`. To use another deployment of it, set the `QUANTCONNECT_API_URL` environment variable to its address and pass it to the container with `"-e", "QUANTCONNECT_API_URL"`.
+
 5. Restart Claude Desktop.
 
    Claude Desktop automatically pulls our MCP server from Docker Hub and connects to it.

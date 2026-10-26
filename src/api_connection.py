@@ -7,7 +7,8 @@ from time import time
 import os
 from pydantic_core import to_jsonable_python
 
-BASE_URL = 'https://www.quantconnect.com/api/v2'
+# The QuantConnect API the server calls; set QUANTCONNECT_API_URL to use another deployment of it.
+BASE_URL = os.getenv('QUANTCONNECT_API_URL', 'https://www.quantconnect.com/api/v2').rstrip('/')
 
 # Load credentials from environment variables.
 USER_ID = os.getenv('QUANTCONNECT_USER_ID')
